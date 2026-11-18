@@ -1,9 +1,14 @@
+
 {
-  "name": "tinytcd-ai",
+  "name": "tiny-tcd-ai",
   "version": "2.0.0",
   "private": true,
   "type": "module",
+  "description": "TinyTCD AI - A creative AI workspace",
   "engines": {
-    "node": ">=18"
+    "node": ">=20"
+  },
+  "scripts": {
+    "dev": "vercel dev"
   }
 }
