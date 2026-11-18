@@ -6,10 +6,12 @@ export default async function handler(req, res) {
     });
   }
 
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 45000);
+
   try {
     const apiKey = process.env.GEMINI_API_KEY;
-    const model =
-      process.env.GEMINI_MODEL || "gemini-3.8-flash";
+    const model = process.env.GEMINI_MODEL || "gemini-3.8-flash";
 
     if (!apiKey) {
       return res.status(500).json({
@@ -65,6 +67,7 @@ export default async function handler(req, res) {
         (m.role === "user" || m.role === "assistant") &&
         typeof m.content === "string"
       )
+      .slice(-12)
       .map(m => ({
         role: m.role === "assistant" ? "model" : "user",
         parts: [{ text: m.content }]
@@ -85,18 +88,23 @@ export default async function handler(req, res) {
       descriptions[selected] || descriptions["Trick-1.0"];
 
     const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`,
       {
         method: "POST",
         headers: {
-          "Content-Type": "application/json"
+          "Content-Type": "application/json",
+          "x-goog-api-key": apiKey
         },
         body: JSON.stringify({
           systemInstruction: {
             parts: [{ text: systemInstruction }]
           },
-          contents
-        })
+          contents,
+          generationConfig: {
+            maxOutputTokens: 1024
+          }
+        }),
+        signal: controller.signal
       }
     );
 
@@ -125,8 +133,17 @@ export default async function handler(req, res) {
     });
 
   } catch (error) {
+    if (error.name === "AbortError") {
+      return res.status(504).json({
+        error: "Gemini took too long to respond. Please try again."
+      });
+    }
+
     return res.status(500).json({
       error: "Server error. Please try again."
     });
+
+  } finally {
+    clearTimeout(timeout);
   }
 }
