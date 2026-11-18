@@ -7,13 +7,16 @@ export default async function handler(req, res) {
   }
 
   const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 45000);
+  const timeout = setTimeout(() => controller.abort(), 110000);
 
   try {
     const apiKey = process.env.GEMINI_API_KEY;
-    const model = process.env.GEMINI_MODEL || "gemini-3.8-flash";
+    const model =
+      process.env.GEMINI_MODEL || "gemini-3.8-flash";
 
     if (!apiKey) {
+      console.error("Missing GEMINI_API_KEY");
+
       return res.status(500).json({
         error: "Gemini API key is not configured in Vercel."
       });
@@ -87,6 +90,12 @@ export default async function handler(req, res) {
     const systemInstruction =
       descriptions[selected] || descriptions["Trick-1.0"];
 
+    console.log("Starting Gemini request:", {
+      model,
+      selectedProfile: selected,
+      messageCount: contents.length
+    });
+
     const response = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`,
       {
@@ -108,11 +117,18 @@ export default async function handler(req, res) {
       }
     );
 
-    const data = await response.json();
+    const data = await response.json().catch(() => ({}));
 
     if (!response.ok) {
+      console.error(
+        "Gemini API Error:",
+        response.status,
+        data
+      );
+
       return res.status(response.status).json({
-        error: data.error?.message || "Gemini request failed."
+        error:
+          data.error?.message || "Gemini request failed."
       });
     }
 
@@ -120,6 +136,8 @@ export default async function handler(req, res) {
       data.candidates?.[0]?.content?.parts
         ?.map(p => p.text || "")
         .join("") || "I couldn't generate a response.";
+
+    console.log("Gemini request completed successfully.");
 
     return res.status(200).json({
       choices: [
@@ -133,6 +151,8 @@ export default async function handler(req, res) {
     });
 
   } catch (error) {
+    console.error("Chat Backend Error:", error);
+
     if (error.name === "AbortError") {
       return res.status(504).json({
         error: "Gemini took too long to respond. Please try again."
@@ -140,7 +160,7 @@ export default async function handler(req, res) {
     }
 
     return res.status(500).json({
-      error: "Server error. Please try again."
+      error: error.message || "Server error. Please try again."
     });
 
   } finally {
