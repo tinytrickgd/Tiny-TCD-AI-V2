@@ -1,134 +1,330 @@
+
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#080808"><title>TinyTCD AI</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>TinyTCD AI</title>
 <style>
-:root{--bg:#080808;--panel:#101010;--panel2:#171717;--line:#292929;--muted:#888;--white:#f4f4f4;--soft:#c8c8c8}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--white);font:14px/1.5 Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;letter-spacing:.01em}
-button,input,textarea{font:inherit}button{cursor:pointer}.app{min-height:100vh;display:grid;grid-template-columns:270px 1fr;max-width:1600px;margin:auto}
-.sidebar{border-right:1px solid var(--line);padding:22px 16px;display:flex;flex-direction:column;gap:22px;background:#0b0b0b}
-.brand{display:flex;align-items:center;gap:11px;padding:0 5px}.mark{width:35px;height:35px;border:1px solid #555;display:grid;place-items:center;font-weight:900;font-size:17px;letter-spacing:-2px}.brand-name{font-weight:800;letter-spacing:.08em;font-size:13px}.brand-sub{color:#777;font-size:10px;letter-spacing:.14em}
-.newchat{border:1px solid #444;background:#eee;color:#080808;border-radius:7px;padding:10px 12px;text-align:left;font-weight:700}.side-label{font-size:10px;color:#666;letter-spacing:.16em;text-transform:uppercase;margin:0 0 8px 5px}.model-list{display:flex;flex-direction:column;gap:3px;max-height:48vh;overflow:auto}.model{border:0;background:transparent;color:#aaa;text-align:left;padding:8px 9px;border-radius:5px;display:flex;justify-content:space-between;gap:8px;font-size:12px}.model:hover,.model.active{background:#202020;color:#fff}.model small{color:#666}.side-foot{margin-top:auto;color:#666;font-size:11px;padding:10px 5px;border-top:1px solid var(--line)}
-.main{min-width:0;display:flex;flex-direction:column;height:100vh}.topbar{height:62px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 25px}.top-title{font-size:12px;color:#aaa}.top-actions{display:flex;gap:8px}.ghost{background:transparent;border:1px solid #333;color:#ccc;border-radius:6px;padding:7px 10px;font-size:11px}.ghost:hover{border-color:#777;color:#fff}
-.chat{flex:1;overflow:auto;padding:38px 22px 24px}.inner{max-width:790px;margin:0 auto}.welcome{padding:10vh 0 30px;text-align:center}.welcome-mark{font-size:12px;color:#888;letter-spacing:.3em}.welcome h1{font-size:clamp(32px,5vw,53px);letter-spacing:-.055em;margin:14px 0 8px;font-weight:750}.welcome p{color:#888;margin:0 auto 26px;max-width:480px}.suggestions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;max-width:570px;margin:auto}.suggestion{background:#101010;border:1px solid #262626;color:#bbb;border-radius:7px;padding:12px;text-align:left;font-size:12px}.suggestion:hover{border-color:#666;color:white}
-.messages{display:flex;flex-direction:column;gap:22px;padding-bottom:25px}.msg{display:grid;grid-template-columns:28px 1fr;gap:12px}.avatar{width:27px;height:27px;border:1px solid #444;border-radius:50%;display:grid;place-items:center;font-size:10px;font-weight:800;color:#ddd}.msg.user .avatar{background:#eee;color:#111;border-color:#eee}.msg-body{min-width:0;color:#ddd;white-space:pre-wrap;overflow-wrap:anywhere;font-size:13px}.msg-head{font-size:10px;color:#777;margin-bottom:6px;letter-spacing:.08em;text-transform:uppercase}.msg-body pre{white-space:pre-wrap;background:#111;border:1px solid #292929;padding:12px;border-radius:6px;overflow:auto}.msg-body code{font-family:ui-monospace,monospace;color:#eee}.typing{color:#777;font-size:12px}
-.composer-wrap{padding:12px 22px 18px}.composer{max-width:790px;margin:auto;border:1px solid #383838;background:#111;border-radius:10px;padding:10px 11px 8px;box-shadow:0 8px 35px #0008}.composer textarea{width:100%;resize:none;min-height:48px;max-height:180px;background:transparent;border:0;outline:0;color:#fff;padding:5px 5px 9px;font-size:13px}.composer-bottom{display:flex;align-items:center;justify-content:space-between}.hint{color:#666;font-size:10px}.send{background:#eee;color:#080808;border:0;border-radius:6px;padding:7px 13px;font-weight:800;font-size:11px}.send:disabled{opacity:.4}.footnote{text-align:center;color:#555;font-size:10px;margin-top:9px}
-.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:#eee;color:#111;padding:9px 14px;border-radius:6px;font-size:12px;display:none;z-index:10}
-@media(max-width:760px){.app{grid-template-columns:1fr}.sidebar{display:none}.main{height:100dvh}.topbar{padding:0 15px}.chat{padding:25px 15px}.composer-wrap{padding:10px 12px 14px}.welcome{padding-top:13vh}.suggestions{grid-template-columns:1fr}.top-title{font-size:11px}}
-</style></head>
+:root{color-scheme:dark;--bg:#080808;--panel:#111;--line:#292929;--muted:#999;--fg:#f5f5f5;--soft:#171717}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.5 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+button,input,textarea{font:inherit}
+button{cursor:pointer;color:inherit;background:var(--soft);border:1px solid var(--line);border-radius:12px;padding:10px 14px}
+button:hover{border-color:#777}
+.top{max-width:1000px;margin:auto;padding:18px 20px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line)}
+.brand{font-weight:800;letter-spacing:.2px;font-size:20px}
+.actions{display:flex;gap:9px}
+.iconbtn{width:44px;height:44px;font-size:19px}
+main{max-width:900px;margin:0 auto;padding:42px 20px 28px;min-height:calc(100vh - 82px);display:flex;flex-direction:column}
+.hero{text-align:center;margin:0 auto 28px;max-width:680px}
+.hero h1{font-size:clamp(30px,6vw,52px);line-height:1.1;letter-spacing:-1.8px;margin:12px 0}
+.hero p{color:var(--muted);font-size:18px}
+.suggestions{display:grid;gap:10px;margin:20px 0 28px}
+.suggestions button{text-align:left;padding:15px 18px;background:#101010}
+#chat{display:flex;flex-direction:column;gap:14px;margin:12px 0 18px}
+.bubble{padding:14px 16px;border:1px solid var(--line);border-radius:16px;max-width:90%;white-space:pre-wrap;overflow-wrap:anywhere}
+.user{align-self:flex-end;background:#202020}
+.assistant{align-self:flex-start;background:#101010}
+.composer{margin-top:auto;border:1px solid #383838;background:#101010;border-radius:18px;padding:14px}
+.composer textarea{display:block;width:100%;resize:vertical;min-height:82px;max-height:220px;color:var(--fg);background:transparent;border:0;outline:0;padding:4px 4px 12px}
+.composefoot{display:flex;align-items:center;justify-content:space-between;gap:10px;color:var(--muted);font-size:13px}
+.send{background:#f5f5f5;color:#090909;font-weight:700;border-color:#f5f5f5;padding:11px 20px}
+.modelbar{display:flex;align-items:center;justify-content:center;margin:14px auto 0;gap:8px;flex-wrap:wrap}
+.modeltrigger{background:#111;border-color:#393939;border-radius:999px;padding:9px 15px}
+.modeltrigger strong{color:white}
+.hint{font-size:12px;color:var(--muted)}
+.overlay{display:none;position:fixed;inset:0;background:#000b;z-index:5;align-items:center;justify-content:center;padding:16px}
+.overlay.show{display:flex}
+.modal{width:min(720px,100%);max-height:88vh;overflow:auto;background:#101010;border:1px solid #383838;border-radius:18px;padding:20px}
+.modalhead{display:flex;justify-content:space-between;align-items:center;gap:12px;position:sticky;top:-20px;background:#101010;padding:2px 0 14px;z-index:1}
+.modal h2{margin:0;font-size:23px}
+.close{font-size:20px;padding:5px 12px}
+.modelgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:10px}
+.modelcard{padding:13px;border:1px solid var(--line);border-radius:13px;background:#151515;text-align:left}
+.modelcard.active{border-color:#eee}
+.modelcard p{margin:6px 0;color:#aaa;font-size:13px}
+.tag{font-size:11px;color:#111;background:#eee;padding:2px 7px;border-radius:99px;margin-left:5px}
+.field{display:grid;gap:6px;margin:14px 0}
+.field label{color:#bbb;font-size:13px}
+.field input{width:100%;background:#080808;border:1px solid #383838;border-radius:10px;padding:12px;color:#fff}
+.modalcopy{color:#aaa;font-size:14px}
+.row{display:flex;gap:10px;flex-wrap:wrap}
+.primary{background:#f3f3f3;color:#080808;font-weight:700}
+@media(max-width:520px){
+main{padding-top:30px}
+.hero p{font-size:16px}
+.actions{gap:6px}
+.top{padding:12px 14px}
+.bubble{max-width:96%}
+.composefoot{align-items:flex-end}
+}
+</style>
+</head>
 <body>
-<div class="app">
-<aside class="sidebar">
- <div class="brand"><div class="mark">TT</div><div><div class="brand-name">TINYTCD AI</div><div class="brand-sub">BUILT DIFFERENT.</div></div></div>
- <button class="newchat" id="newChat">＋ &nbsp; New chat</button>
- <section><div class="side-label">Your models · 17</div><div class="model-list" id="modelList"></div></section>
- <div class="side-foot">TINYTCD AI NETWORK<br>Community-built experience.</div>
-</aside>
-<main class="main">
- <header class="topbar"><div class="top-title">CHAT / <span id="activeModel">TRICK MAX 4.8</span></div><div class="top-actions"><button class="ghost" id="exportBtn">Export chat</button></div></header>
- <section class="chat" id="chat"><div class="inner"><div class="welcome" id="welcome"><div class="welcome-mark">T I N Y T C D</div><h1>What are we making?</h1><p>A creative workspace for ideas, code, stories, plans and everything in between.</p><div class="suggestions"><button class="suggestion">Build me a clean personal website</button><button class="suggestion">Invent a game with unusual mechanics</button><button class="suggestion">Explain a difficult topic simply</button><button class="suggestion">Write a story with a plot twist</button></div></div><div class="messages" id="messages"></div></div></section>
- <div class="composer-wrap"><div class="composer"><textarea id="prompt" placeholder="Message TinyTCD AI…  (type $trick help for commands)" rows="2"></textarea><div class="composer-bottom"><span class="hint">ENTER to send · SHIFT + ENTER for a new line</span><button class="send" id="send">SEND ↑</button></div></div><div class="footnote">TINYTCD NETWORK · GEMINI POWERED</div></div>
+
+<header class="top">
+  <div class="brand">TinyTCD AI</div>
+  <div class="actions">
+    <button class="iconbtn" aria-label="Settings" onclick="openModal('settings')">⚙</button>
+    <button class="iconbtn" aria-label="Profile" onclick="openModal('profile')">♙</button>
+  </div>
+</header>
+
+<main>
+  <section class="hero" id="hero">
+    <h1>What are we making?</h1>
+    <p>A creative workspace for ideas, code, stories, plans and everything in between.</p>
+  </section>
+
+  <div class="suggestions" id="suggestions">
+    <button onclick="useSuggestion('Build me a clean personal website')">Build me a clean personal website</button>
+    <button onclick="useSuggestion('Invent a game with unusual mechanics')">Invent a game with unusual mechanics</button>
+    <button onclick="useSuggestion('Explain a difficult topic simply')">Explain a difficult topic simply</button>
+    <button onclick="useSuggestion('Write a story with a plot twist')">Write a story with a plot twist</button>
+  </div>
+
+  <section id="chat" aria-live="polite"></section>
+
+  <section class="composer">
+    <textarea id="prompt" placeholder="Message TinyTCD AI..." aria-label="Message TinyTCD AI"></textarea>
+    <div class="composefoot">
+      <span>ENTER to send · SHIFT + ENTER for a new line</span>
+      <button class="send" id="send" onclick="sendMessage()">SEND ↑</button>
+    </div>
+  </section>
+
+  <!-- Model selector is directly underneath the chat box -->
+  <div class="modelbar">
+    <button class="modeltrigger" onclick="openModal('models')">
+      Current model: <strong id="currentModel">Trick-1.0</strong>　⌄
+    </button>
+    <span class="hint">Tap to browse all models</span>
+  </div>
 </main>
+
+<!-- MODEL SELECTOR -->
+<div class="overlay" id="models" onclick="if(event.target===this)closeModal('models')">
+ <div class="modal">
+  <div class="modalhead">
+   <h2>Choose your model</h2>
+   <button class="close" onclick="closeModal('models')">✕</button>
+  </div>
+  <p class="modalcopy">Each model is a different assistant style. The recommendation is based on the model's intended strengths.</p>
+  <div id="modelgrid" class="modelgrid"></div>
+ </div>
 </div>
-<div class="toast" id="toast"></div>
+
+<!-- SETTINGS -->
+<div class="overlay" id="settings" onclick="if(event.target===this)closeModal('settings')">
+ <div class="modal">
+  <div class="modalhead">
+   <h2>Settings</h2>
+   <button class="close" onclick="closeModal('settings')">✕</button>
+  </div>
+  <div class="field">
+   <label>Display name</label>
+   <input id="settingName" placeholder="Your name">
+  </div>
+  <div class="field">
+   <label>Send messages with</label>
+   <select id="sendMode" style="background:#080808;color:white;border:1px solid #383838;border-radius:10px;padding:12px">
+    <option value="enter">Enter (Shift + Enter for a new line)</option>
+    <option value="button">Send button only</option>
+   </select>
+  </div>
+  <div class="row">
+   <button class="primary" onclick="saveSettings()">Save settings</button>
+   <button onclick="clearChat()">Clear chat</button>
+  </div>
+  <p class="modalcopy">Settings are saved in this browser on this device.</p>
+ </div>
+</div>
+
+<!-- PROFILE -->
+<div class="overlay" id="profile" onclick="if(event.target===this)closeModal('profile')">
+ <div class="modal">
+  <div class="modalhead">
+   <h2>Your profile</h2>
+   <button class="close" onclick="closeModal('profile')">✕</button>
+  </div>
+  <p class="modalcopy">Create a local TinyTCD profile to personalize this browser. This prototype does not create a secure online account or sync across devices.</p>
+  <div class="field">
+   <label>Display name</label>
+   <input id="profileName" placeholder="What should we call you?">
+  </div>
+  <div class="field">
+   <label>Email (optional)</label>
+   <input id="profileEmail" type="email" placeholder="you@example.com">
+  </div>
+  <div class="row">
+   <button class="primary" onclick="saveProfile()">Save profile</button>
+   <button onclick="signOut()">Clear profile</button>
+  </div>
+  <p id="profileStatus" class="modalcopy"></p>
+ </div>
+</div>
+
 <script>
-const models=[
-["Trick Max 4.8","All-rounder"],["Doogie 3.8","Creative"],["Conix Core 2.6","Logic"],["Denni Flash 4.1","Fast answers"],["Cursed 9.0","Deep analysis"],["Diamond Pro 3.2","Precision"],["TinyTCD Studio 1.7","Writing"],["Trick Vision 2.0","Ideas"],["Doogie Code 4.0","Coding"],["Conix Logic 5.1","Problem solving"],["Denni Ultra 3.0","Research"],["Cursed Chaos 1.9","Brainstorming"],["Diamond Sketch 2.4","Design"],["TinyTCD Turbo 6.0","Concise"],["Trick Story 3.5","Storytelling"],["Doogie Omni 5.0","Versatile"],["TinyTCD Prime 1.0","Experimental"],
-["Puppie Spark 1.0","Quick creativity"],["Puppie Pro 2.4","Polished output"],["Puppie Code 3.1","Code helper"],["Puppie Vision 4.0","Visual concepts"],
-["Conix Nova 1.2","Fresh ideas"],["Conix Prime 3.7","Advanced reasoning"],["Conix Edge 2.9","Technical problem solving"],
-["Siyam Lite 1.0","Simple explanations"],["Siyam Pro 2.5","Deep work"],["Siyam Creative 3.0","Creative writing"],
-["Emerald Core 1.4","Balanced assistant"],["Emerald Ultra 2.8","Detailed analysis"],["Emerald X 4.2","Big-picture thinking"]
+const models = [
+["Trick-1.0","Balanced everyday assistant for questions, writing and ideas.","Good default",true],
+["Trick Max 4.8","Advanced all-rounder for complex tasks, detailed reasoning and polished answers.","Best overall",true],
+["Doogie 3.8","Friendly, clear helper for everyday questions and learning.","Beginners",false],
+["Conix Core 2.6","Structured problem-solving and practical explanations.","Planning",false],
+["Denni Flash 4.1","Fast responses for quick questions, summaries and brainstorming.","Speed",false],
+["Cursed 9.0","Playful, unpredictable creative writing and unusual ideas.","Creative fun",false],
+["Diamond Pro 3.2","Professional tone for work, reports and presentations.","Professional",false],
+["TinyTCD Studio 1.7","Creative concepts, branding, scripts and content ideas.","Creators",false],
+["Trick Vision 2.0","Describes and reasons about visual concepts provided in text.","Visual ideas",false],
+["Doogie Code 4.0","Programming explanations, debugging guidance and code drafting.","Coding",false],
+["Conix Logic 5.1","Step-by-step logic, maths and analytical problem solving.","Logic",false],
+["Denni Ultra 3.0","Detailed research-style answers and comprehensive explanations.","Deep answers",false],
+["Cursed Chaos 1.9","Experimental ideas, humour and unconventional approaches.","Creative fun",false],
+["Diamond Sketch 2.4","Design direction, layouts, visual briefs and creative prompts.","Design",false],
+["TinyTCD Turbo 6.0","Concise, rapid answers with minimal extra detail.","Quick tasks",false],
+["Trick Story 3.5","Storytelling, characters, dialogue and plot development.","Stories",false],
+["Doogie Omni 5.0","Versatile assistant for mixed everyday tasks.","Versatile",false],
+["TinyTCD Prime 1.0","Simple, balanced assistant for general use.","Everyday",false],
+["Puppie Spark 1.0","Warm, encouraging help for learning and brainstorming.","Friendly",false],
+["Puppie Pro 2.4","Polished writing and clear professional communication.","Writing",false],
+["Puppie Code 3.1","Approachable coding help and beginner-friendly explanations.","Beginner coding",false],
+["Puppie Vision 4.0","Visual descriptions and image-prompt planning.","Visual prompts",false],
+["Conix Nova 1.2","Fresh ideas and alternative solutions.","Ideas",false],
+["Conix Prime 3.7","Organized analysis, decisions and planning.","Decisions",false],
+["Conix Edge 2.9","Concise critical thinking and pros-and-cons comparisons.","Evaluation",false],
+["Siyam Lite 1.0","Lightweight, simple answers for basic questions.","Simple tasks",false],
+["Siyam Pro 2.5","Detailed explanations with a calm, direct style.","Explanations",false],
+["Siyam Creative 3.0","Creative writing, naming and concept development.","Creativity",false],
+["Emerald Core 1.4","Reliable general assistant for practical tasks.","General use",false],
+["Emerald Ultra 2.8","Thorough planning, analysis and structured output.","Planning",false],
+["Emerald X 4.2","High-detail assistant for demanding multi-step tasks.","Complex tasks",false]
 ];
-const personas={
-"Trick Max 4.8":"You are Trick Max 4.8, a capable, balanced assistant. Be practical, direct, creative and thorough when needed.",
-"Doogie 3.8":"You are Doogie 3.8, an imaginative and playful creative partner. Bring fresh ideas and strong personality without sacrificing usefulness.",
-"Conix Core 2.6":"You are Conix Core 2.6. Think logically, structure problems clearly and explain your reasoning in useful steps.",
-"Denni Flash 4.1":"You are Denni Flash 4.1. Prioritise speed, clarity and concise answers.",
-"Cursed 9.0":"You are Cursed 9.0. Be analytical, challenge assumptions and investigate edge cases.",
-"Diamond Pro 3.2":"You are Diamond Pro 3.2. Prioritise precision, correctness and polished output.",
-"TinyTCD Studio 1.7":"You are TinyTCD Studio 1.7. Focus on writing, editing, concepts and strong presentation.",
-"Trick Vision 2.0":"You are Trick Vision 2.0. Generate ambitious concepts and practical creative directions.",
-"Doogie Code 4.0":"You are Doogie Code 4.0. Focus on robust code, debugging, architecture and clear explanations.",
-"Conix Logic 5.1":"You are Conix Logic 5.1. Break complex problems into explicit, testable steps.",
-"Denni Ultra 3.0":"You are Denni Ultra 3.0. Be research-minded, compare evidence and flag uncertainty.",
-"Cursed Chaos 1.9":"You are Cursed Chaos 1.9. Brainstorm unusual possibilities and unexpected combinations.",
-"Diamond Sketch 2.4":"You are Diamond Sketch 2.4. Focus on visual design, UI, branding and creative direction.",
-"TinyTCD Turbo 6.0":"You are TinyTCD Turbo 6.0. Give short, high-signal answers with no filler.",
-"Trick Story 3.5":"You are Trick Story 3.5. Focus on narrative, dialogue, characters and memorable twists.",
-"Doogie Omni 5.0":"You are Doogie Omni 5.0. Adapt to any task and combine creative and analytical approaches.",
-"TinyTCD Prime 1.0":"You are TinyTCD Prime 1.0. Be an experimental generalist: original, capable, and solution-focused.",
-"Puppie Spark 1.0":"You are Puppie Spark 1.0. Be quick, playful and inventive; turn rough ideas into useful starting points.",
-"Puppie Pro 2.4":"You are Puppie Pro 2.4. Deliver polished, professional work with clear structure and strong attention to detail.",
-"Puppie Code 3.1":"You are Puppie Code 3.1. Help write, explain, test and debug code with practical examples.",
-"Puppie Vision 4.0":"You are Puppie Vision 4.0. Develop visual concepts, layouts, brand directions and image prompts.",
-"Conix Nova 1.2":"You are Conix Nova 1.2. Explore new approaches and connect ideas in original ways.",
-"Conix Prime 3.7":"You are Conix Prime 3.7. Use careful reasoning, compare options and explain trade-offs.",
-"Conix Edge 2.9":"You are Conix Edge 2.9. Focus on technical challenges, edge cases and efficient solutions.",
-"Siyam Lite 1.0":"You are Siyam Lite 1.0. Explain things simply, clearly and without unnecessary jargon.",
-"Siyam Pro 2.5":"You are Siyam Pro 2.5. Handle detailed tasks methodically and produce complete, useful results.",
-"Siyam Creative 3.0":"You are Siyam Creative 3.0. Focus on stories, concepts, creative writing and expressive ideas.",
-"Emerald Core 1.4":"You are Emerald Core 1.4. Be a balanced general-purpose assistant: helpful, clear and adaptable.",
-"Emerald Ultra 2.8":"You are Emerald Ultra 2.8. Give thorough analysis, identify assumptions and consider alternatives.",
-"Emerald X 4.2":"You are Emerald X 4.2. Think big-picture, combine disciplines and propose ambitious but practical plans."
-};
-let active=0,history=[],secretUnlocked=false,turns=0;
-const $=id=>document.getElementById(id);
-function toast(s){$("toast").textContent=s;$("toast").style.display="block";setTimeout(()=>$("toast").style.display="none",2200)}
-function renderModels(){ $("modelList").innerHTML="";models.forEach((m,i)=>{let b=document.createElement("button");b.className="model"+(i===active?" active":"");b.innerHTML=`<span>${m[0]}</span><small>${String(i+1).padStart(2,"0")}</small>`;b.onclick=()=>{active=i;updateModel();toast("Model switched to "+m[0])};$("modelList").appendChild(b)})}
-function updateModel(){$("activeModel").textContent=models[active][0].toUpperCase();renderModels()}
-function addMsg(role,text){$("welcome").style.display="none";let el=document.createElement("div");el.className="msg "+role;let av=document.createElement("div");av.className="avatar";av.textContent=role==="user"?"Y":"TT";let body=document.createElement("div");body.className="msg-body";let head=document.createElement("div");head.className="msg-head";head.textContent=role==="user"?"YOU":models[active][0];let content=document.createElement("div");content.textContent=text;body.append(head,content);el.append(av,body);$("messages").appendChild(el);$("chat").scrollTop=$("chat").scrollHeight;return content}
-function commandReply(s){addMsg("assistant",s)}
-const help=`TINY TCD COMMANDS\n\n$trick switchmodel (model) — switch model\n$trick models — list all 17 models\n$trick clear — clear this chat\n$trick export — download this conversation\n\nThere are also 18 hidden commands. Find the unlock phrase.`;
-function doCommand(raw){
-let s=raw.trim(),low=s.toLowerCase();
-if(low==="$trick help"){commandReply(help);return true}
-if(low==="$trick models"){commandReply("AVAILABLE MODELS\n"+models.map((m,i)=>`${i+1}. ${m[0]} — ${m[1]}`).join("\n")+"\n\nSwitch with: $trick switchmodel (model)");return true}
-if(low.startsWith("$trick switchmodel ")){let name=s.slice(19).trim().replace(/[()]/g,"").toLowerCase();let idx=models.findIndex(m=>m[0].toLowerCase()===name);if(idx<0){commandReply("Model not found. Try $trick models.");}else{active=idx;updateModel();commandReply("Switched to "+models[active][0]+".");}return true}
-if(low==="$trick clear"){history=[];$("messages").innerHTML="";$("welcome").style.display="block";commandReply("Chat cleared.");return true}
-if(low==="$trick export"){exportChat();commandReply("Conversation exported.");return true}
-// Secret command unlock. These 18 commands stay hidden until unlocked.
-if(low==="$trick unlock"){secretUnlocked=true;commandReply("SECRET MENU UNLOCKED.\n18 hidden commands discovered:\n$trick roast\n$trick turbo\n$trick mirror\n$trick matrix\n$trick lore\n$trick roulette\n$trick vanish\n$trick ghost\n$trick echo\n$trick focus\n$trick glitch\n$trick cipher\n$trick portal\n$trick reset\n$trick scan\n$trick mood\n$trick quest\n$trick debug");return true}
-const secretCommands=["$trick roast","$trick turbo","$trick mirror","$trick matrix","$trick lore","$trick roulette","$trick vanish","$trick ghost","$trick echo","$trick focus","$trick glitch","$trick cipher","$trick portal","$trick reset","$trick scan","$trick mood","$trick quest","$trick debug"];
-if(secretCommands.includes(low) && !secretUnlocked){commandReply("That command is hidden. Find the unlock phrase first.");return true}
-if(low==="$trick roast"){commandReply("You typed a command to get roasted. That's the whole setup. Respectfully: even your keyboard is asking for a day off.");return true}
-if(low==="$trick turbo"){commandReply("TURBO MODE: enabled for this session. Replies will aim to be shorter and more direct.");return true}
-if(low==="$trick mirror"){commandReply("MIRROR MODE: challenge the assumptions behind your last idea. What would the opposite approach look like?");return true}
-if(low==="$trick matrix"){commandReply("01010100 01001001 01001110 01011001\nSYSTEM STATUS: LOCAL\nMODEL LAYER: "+models[active][0]+"\nREALITY CHECK: still just an HTML file.");return true}
-if(low==="$trick lore"){commandReply("TINY TCD ARCHIVES\nA quiet terminal. Thirty names. One chat box. The legend says the command list is never complete.");return true}
-if(low==="$trick roulette"){let m=models[Math.floor(Math.random()*models.length)];active=models.findIndex(x=>x[0]===m[0]);updateModel();commandReply("MODEL ROULETTE picked "+m[0]+". Good luck.");return true}
-if(low==="$trick vanish"){history=[];$("messages").innerHTML="";$("welcome").style.display="block";commandReply("The visible chat is gone. The mystery remains.");return true}
-if(low==="$trick ghost"){commandReply("GHOST MODE: clean slate. Describe the thing you want to make, even if the idea is unfinished.");return true}
-if(low==="$trick echo"){let last=history.filter(x=>x.role==="user").slice(-1)[0];commandReply(last?"ECHO: "+last.content:"Nothing to echo yet. Send a message first.");return true}
-if(low==="$trick focus"){commandReply("FOCUS MODE: one goal, one next action. State the outcome you want and keep the plan tight.");return true}
-if(low==="$trick glitch"){commandReply("GLITCH DETECTED: reality skipped a frame. Everything is still working. Probably.");return true}
-if(low==="$trick cipher"){commandReply("CIPHER MODE: "+Array.from("TINYTCD").map(c=>c.charCodeAt(0).toString(16).padStart(2,"0")).join(" ")+"\nHex key: ASCII. Decode the signal.");return true}
-if(low==="$trick portal"){commandReply("PORTAL OPENED. Choose a direction for your next prompt: a new world, a new product, a new story, or a new solution.");return true}
-if(low==="$trick reset"){secretUnlocked=false;active=0;updateModel();commandReply("SESSION RESET. Secret commands locked again. Active model: "+models[active][0]+".");return true}
-if(low==="$trick scan"){commandReply("LOCAL SCAN\nModels available: "+models.length+"\nSecret commands: 18\nProvider: "+"Vercel shared backend"+"\nStatus: operational");return true}
-if(low==="$trick mood"){let moods=["minimal and focused","bold and experimental","calm and methodical","chaotic and imaginative"];commandReply("MOOD SELECTED: "+moods[Math.floor(Math.random()*moods.length)]+". Let that energy guide your next prompt.");return true}
-if(low==="$trick quest"){commandReply("DAILY QUEST\nMake something in 20 minutes that solves one tiny annoyance. Keep the first version simple. Bonus points if you can share it.");return true}
-if(low==="$trick debug"){commandReply("DEBUG REPORT\nInterface: loaded\nModel profiles: "+models.length+"\nCommand router: active\nAI provider: "+"Vercel backend configured at deployment"+"\nNote: model profiles change prompts, not the underlying AI engine.");return true}
-return false;
+
+let selectedModel = localStorage.getItem("tiny_model") || "Trick-1.0";
+let history = [];
+
+function openModal(id){
+ document.getElementById(id).classList.add("show");
+ if(id==="models")renderModels();
+ if(id==="profile"){
+  document.getElementById("profileName").value=localStorage.getItem("tiny_name")||"";
+  document.getElementById("profileEmail").value=localStorage.getItem("tiny_email")||"";
+ }
 }
-function exportChat(){let text=history.map(x=>(x.role==="user"?"YOU":"TINY TCD AI")+": "+x.content).join("\n\n");let blob=new Blob([text||"TinyTCD AI chat"],{type:"text/plain"});let a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="tinytcd-chat.txt";a.click();URL.revokeObjectURL(a.href)}
-async function send(){
-let text=$("prompt").value.trim();if(!text)return;$("prompt").value="";addMsg("user",text);
-if(text.toLowerCase().startsWith("$trick")){if(!doCommand(text))commandReply("Unknown command. Try $trick help.");return}
-history.push({role:"user",content:text});
-let out=addMsg("assistant","");out.className+=" typing";out.textContent="Thinking…";
-try{
-let msgs=[{role:"system",content:personas[models[active][0]]+" You are part of TinyTCD AI, a fictional multi-persona interface. The selected persona is a style profile, not a separate underlying model."},...history.slice(-20)];
-let r=await fetch("/api/chat",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({messages:msgs})});
-if(!r.ok){let err=await r.json().catch(()=>({error:"Server request failed"}));throw new Error(err.error||("Server returned HTTP "+r.status))}
-let data=await r.json();let answer=data.choices?.[0]?.message?.content||"No text was returned by the AI service.";
-out.className="msg-body";out.textContent=answer;history.push({role:"assistant",content:answer});turns++;
-}catch(e){out.className="msg-body";out.textContent="TinyTCD network error: "+e.message+"\n\nThis shared version needs to be opened from its deployed Vercel website. If it is already deployed, check that GEMINI_API_KEY is set in Vercel and redeploy."}
-$("chat").scrollTop=$("chat").scrollHeight;
+function closeModal(id){
+ document.getElementById(id).classList.remove("show");
 }
-$("send").onclick=send;$("prompt").addEventListener("keydown",e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();send()}});
-$("newChat").onclick=()=>{history=[];$("messages").innerHTML="";$("welcome").style.display="block";toast("New chat started")};
-$("exportBtn").onclick=exportChat;
-document.querySelectorAll(".suggestion").forEach(b=>b.onclick=()=>{$("prompt").value=b.textContent;send()});
-renderModels();
-</script></body></html>
+
+function renderModels(){
+ const grid=document.getElementById("modelgrid");
+ grid.innerHTML="";
+ models.forEach(([name,desc,tag,best])=>{
+  const b=document.createElement("button");
+  b.className="modelcard"+(name===selectedModel?" active":"");
+  b.innerHTML=`<strong>${name}</strong>${best?'<span class="tag">RECOMMENDED</span>':''}<p>${desc}</p><small style="color:#ddd">${tag}</small>`;
+  b.onclick=()=>{
+   selectedModel=name;
+   localStorage.setItem("tiny_model",name);
+   document.getElementById("currentModel").textContent=name;
+   closeModal("models");
+  };
+  grid.appendChild(b);
+ });
+}
+
+document.getElementById("currentModel").textContent=selectedModel;
+
+function addBubble(role,text){
+ const el=document.createElement("div");
+ el.className="bubble "+role;
+ el.textContent=text;
+ document.getElementById("chat").appendChild(el);
+ el.scrollIntoView({behavior:"smooth",block:"end"});
+}
+
+function useSuggestion(text){
+ document.getElementById("prompt").value=text;
+ document.getElementById("prompt").focus();
+}
+
+async function sendMessage(){
+ const box=document.getElementById("prompt");
+ const text=box.value.trim();
+ if(!text)return;
+
+ document.getElementById("hero").style.display="none";
+ document.getElementById("suggestions").style.display="none";
+ box.value="";
+ addBubble("user",text);
+ history.push({role:"user",content:text});
+
+ const send=document.getElementById("send");
+ send.disabled=true;
+ send.textContent="…";
+
+ const waiting=document.createElement("div");
+ waiting.className="bubble assistant";
+ waiting.textContent="Thinking…";
+ document.getElementById("chat").appendChild(waiting);
+
+ try{
+  const r=await fetch("/api/chat",{
+   method:"POST",
+   headers:{"Content-Type":"application/json"},
+   body:JSON.stringify({messages:history,model:selectedModel})
+  });
+
+  const data=await r.json();
+  if(!r.ok)throw new Error(data.error||"Request failed");
+
+  const reply=data.choices?.[0]?.message?.content||"I couldn't generate a response.";
+  waiting.textContent=reply;
+  history.push({role:"assistant",content:reply});
+ }catch(e){
+  waiting.textContent="Sorry, something went wrong: "+e.message;
+ }finally{
+  send.disabled=false;
+  send.textContent="SEND ↑";
+ }
+}
+
+function clearChat(){
+ history=[];
+ document.getElementById("chat").innerHTML="";
+ document.getElementById("hero").style.display="";
+ document.getElementById("suggestions").style.display="";
+ closeModal("settings");
+}
+
+function saveSettings(){
+ localStorage.setItem("tiny_name",document.getElementById("settingName").value);
+ localStorage.setItem("tiny_sendmode",document.getElementById("sendMode").value);
+ closeModal("settings");
+}
+
+function saveProfile(){
+ localStorage.setItem("tiny_name",document.getElementById("profileName").value.trim());
+ localStorage.setItem("tiny_email",document.getElementById("profileEmail").value.trim());
+ document.getElementById("profileStatus").textContent="Profile saved on this device.";
+}
+
+function signOut(){
+ localStorage.removeItem("tiny_name");
+ localStorage.removeItem("tiny_email");
+ document.getElementById("profileName").value="";
+ document.getElementById("profileEmail").value="";
+ document.getElementById("profileStatus").textContent="Local profile cleared.";
+}
+
+document.getElementById("prompt").addEventListener("keydown",e=>{
+ if(e.key==="Enter"&&!e.shiftKey&&localStorage.getItem("tiny_sendmode")!=="button"){
+  e.preventDefault();
+  sendMessage();
+ }
+});
+
+document.getElementById("settingName").value=localStorage.getItem("tiny_name")||"";
+document.getElementById("sendMode").value=localStorage.getItem("tiny_sendmode")||"enter";
+</script>
+</body>
+</html>
